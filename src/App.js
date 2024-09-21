@@ -39,7 +39,7 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <h1 className="app-title"> Search </h1>
+      <h1 className="app-title">Todo Search App</h1>
       <SearchForm onSearch={handleSearch} />
       {loading ? <p>Loading...</p> : <TodoList todos={filteredTodos} />}
     </div>

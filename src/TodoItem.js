@@ -1,10 +1,12 @@
 import React from "react";
+import './TodoItem.css';
 
-// Component for displaying individual todo item
 const TodoItem = ({ todo }) => {
   return (
-    <li>
-      {todo.title} {todo.completed ? "(Completed)" : "(Pending)"}
+    <li className="todo-item">
+      {todo.title} <span className={todo.completed ? "completed" : "pending"}>
+        {todo.completed ? "(Completed)" : "(Pending)"}
+      </span>
     </li>
   );
 };
