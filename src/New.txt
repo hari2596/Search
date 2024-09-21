@@ -1,0 +1,114 @@
+Searchform.js //
+
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+
+// Validation schema using Yup
+const SearchSchema = Yup.object().shape({
+  query: Yup.string().required("Search query is required!"),
+});
+
+const SearchForm = ({ onSearch }) => {
+  return (
+    <Formik
+      initialValues={{ query: "" }}
+      validationSchema={SearchSchema}
+      onSubmit={(values) => {
+        // Call the onSearch function passed as a prop
+        onSearch(values.query);
+      }}
+    >
+      {({ isSubmitting }) => (
+        <Form>
+          <div>
+            <Field
+              type="text"
+              name="query"
+              placeholder="Enter search query"
+            />
+            <ErrorMessage name="query" component="div" style={{ color: 'red' }} />
+          </div>
+          <button type="submit" disabled={isSubmitting}>
+            Search
+          </button>
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
+export default SearchForm;
+
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import SearchForm from "./SearchForm";
+
+const App = () => {
+  const [todos, setTodos] = useState([]);
+  const [filteredTodos, setFilteredTodos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Fetch data from the API
+  const fetchTodos = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("https://jsonplaceholder.typicode.com/todos");
+      setTodos(response.data);
+      setFilteredTodos(response.data); // Initially show all todos
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to fetch data.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  // Handle the search query from SearchForm
+  const handleSearch = (query) => {
+    if (query.trim() === "") {
+      setFilteredTodos(todos); // Show all if query is empty
+    } else {
+      const filtered = todos.filter((todo) =>
+        todo.title.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredTodos(filtered);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Todo Search App</h1>
+
+      {/* Search Form */}
+      <SearchForm onSearch={handleSearch} />
+
+      {/* Display error if the API call fails */}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* Display a loading message while fetching */}
+      {loading ? (
+        <p>Loading...</p>
+      ) : filteredTodos.length === 0 ? (
+        <p>No results found.</p>
+      ) : (
+        <ul>
+          {/* Render filtered todos */}
+          {filteredTodos.map((todo) => (
+            <li key={todo.id}>
+              {todo.title} {todo.completed ? "(Completed)" : "(Pending)"}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default App;
+
